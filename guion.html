@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guion de Venta — Piloto Yulia</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f2f2f7;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 620px; margin: 0 auto; padding: 0 16px 60px; }
+
+    /* ── Pantalla de acceso ── */
+    #pantalla-acceso {
+      position: fixed; inset: 0; background: #1A1A2E;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; padding: 24px;
+    }
+    .acceso-box {
+      background: #fff; border-radius: 20px; padding: 32px 28px;
+      width: 100%; max-width: 340px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .acceso-icono { font-size: 40px; margin-bottom: 12px; }
+    .acceso-titulo { font-size: 17px; font-weight: 700; color: #1A1A2E; margin-bottom: 4px; }
+    .acceso-sub { font-size: 12px; color: #888; margin-bottom: 24px; line-height: 1.5; }
+    .pin-inputs { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+    .pin-inputs input {
+      width: 52px; height: 58px; text-align: center; font-size: 24px; font-weight: 700;
+      border: 2px solid #e0e0e0; border-radius: 12px; color: #1A1A2E; background: #fafafa;
+      outline: none; transition: border-color 0.15s; -webkit-text-security: disc;
+    }
+    .pin-inputs input:focus { border-color: #2563EB; background: #fff; }
+    .pin-inputs input.error { border-color: #E94560; background: #fff5f7; animation: shake 0.3s; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    .btn-acceso {
+      width: 100%; background: #1A1A2E; color: white; border: none; border-radius: 10px;
+      padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-acceso:hover { background: #2563EB; }
+    .acceso-error { display: none; margin-top: 12px; font-size: 12px; color: #E94560; font-weight: 600; }
+    .acceso-intentos { margin-top: 8px; font-size: 11px; color: #bbb; }
+
+    /* ── Header ── */
+    .header { background: #1A1A2E; color: white; border-radius: 16px; padding: 20px 24px; margin: 16px 0 6px; }
+    .header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .header p  { font-size: 11px; color: #aaa; margin-top: 4px; line-height: 1.5; }
+    .badge-pill {
+      display: inline-block; background: #2563EB; color: white; font-size: 10px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px; margin-top: 8px; letter-spacing: 0.3px;
+    }
+    .btn-back {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;
+      border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+      text-decoration: none; white-space: nowrap; flex-shrink: 0; transition: background 0.2s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.18); }
+
+    .uso-rapido {
+      background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 12px 16px;
+      margin: 12px 0; font-size: 12px; color: #7a5800; line-height: 1.6;
+    }
+    .uso-rapido strong { color: #5c4200; }
+
+    .section-label {
+      font-size: 10px; font-weight: 700; color: #2563EB; letter-spacing: 1.5px; text-transform: uppercase;
+      margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #e0e0e0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-time { font-size: 10px; color: #aaa; font-weight: 400; letter-spacing: 0; text-transform: none; }
+
+    .bloque { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; }
+    .bloque-title { font-size: 12px; font-weight: 700; color: #1A1A2E; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .bloque-title .icon { font-size: 14px; }
+
+    .script-box {
+      background: #1A1A2E; color: #e8e8e8; border-radius: 10px; padding: 13px 16px;
+      font-size: 13px; line-height: 1.65; margin-bottom: 10px; position: relative;
+    }
+    .script-box::before {
+      content: '💬'; position: absolute; top: -9px; left: 14px; font-size: 14px;
+      background: #1A1A2E; padding: 0 4px;
+    }
+    .script-box em { color: #E94560; font-style: normal; font-weight: 600; }
+
+    .pregunta-card { background: #fff; border: 1px solid #e8e8e8; border-left: 3px solid #2563EB; border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; }
+    .pregunta-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .pregunta-num { font-size: 10px; font-weight: 700; color: #2563EB; white-space: nowrap; margin-top: 2px; }
+    .pregunta-titulo { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.4; flex: 1; }
+    .tiempo-badge { background: #f0f0f0; color: #666; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+
+    .por-que {
+      background: #eaf6ee; border-left: 3px solid #1D9E75; border-radius: 0 8px 8px 0;
+      padding: 8px 12px; font-size: 11px; color: #1D5C35; line-height: 1.5; margin-bottom: 10px;
+    }
+    .por-que strong { color: #155a30; }
+
+    .tips-title { font-size: 10px; font-weight: 700; color: #888; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+    .tip-item { display: flex; gap: 8px; padding: 7px 10px; border-radius: 8px; background: #fafafa; border: 1px solid #f0f0f0; margin-bottom: 5px; font-size: 12px; line-height: 1.5; }
+    .tip-item.objecion { background: #fff5f7; border-color: #ffd6dc; }
+    .tip-item.objecion .tip-icon { color: #E94560; }
+    .tip-item.argumento { background: #f0f8ff; border-color: #c8e0f7; }
+    .tip-item.argumento .tip-icon { color: #1a6fcf; }
+    .tip-item.ojo { background: #fff8e1; border-color: #ffe082; }
+    .tip-item.ojo .tip-icon { color: #7a5800; }
+    .tip-item.alerta { background: #fff5f7; border-color: #ffd6dc; }
+    .tip-item.alerta .tip-icon { color: #E94560; }
+    .tip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .tip-text { color: #333; }
+    .tip-text strong { color: #1a1a1a; }
+
+    .respuesta-modelo { background: #f5f5f5; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #444; line-height: 1.5; margin-top: 4px; font-style: italic; }
+
+    .divider { border: none; border-top: 1px dashed #e0e0e0; margin: 10px 0; }
+
+    .checklist { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .checklist-item {
+      display: flex; gap: 10px; align-items: flex-start; background: #fafafa; border: 1px solid #f0f0f0;
+      border-radius: 8px; padding: 9px 12px; font-size: 12px; line-height: 1.45;
+    }
+    .checklist-item input[type=checkbox] { margin-top: 2px; accent-color: #1D9E75; width: 15px; height: 15px; flex-shrink: 0; }
+
+    .precio-tabla { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    .precio-tabla th, .precio-tabla td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; }
+    .precio-tabla th { color: #888; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+
+    .cierre-card { background: #1A1A2E; color: white; border-radius: 12px; padding: 18px 20px; margin-top: 6px; }
+    .cierre-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .cierre-card .script-box { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); }
+    .cierre-card .script-box::before { background: transparent; }
+
+    .senal-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .senal-item { display: flex; gap: 10px; align-items: flex-start; background: rgba(255,255,255,0.07); border-radius: 8px; padding: 8px 12px; font-size: 12px; line-height: 1.4; }
+    .senal-item .senal-icon { font-size: 14px; flex-shrink: 0; }
+    .senal-item .senal-text { color: #ddd; }
+    .senal-item .senal-text strong { color: #fff; }
+
+    .btn-print, .btn-anotar {
+      display: block; width: 100%; color: white; border: none; border-radius: 10px;
+      padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
+      transition: background 0.2s; letter-spacing: -0.2px; text-align: center; text-decoration: none;
+    }
+    .btn-print { background: #1D9E75; }
+    .btn-print:hover { background: #178060; }
+    .btn-anotar { background: #2563EB; margin-top: 20px; }
+    .btn-anotar:hover { background: #1d4ed8; }
+
+    @media print {
+      body { background: white; }
+      .btn-print, .btn-anotar, .btn-back { display: none; }
+      .wrap { max-width: 100%; padding: 0 10px; }
+      .script-box { background: #222; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+    @media (max-width: 400px) { .pregunta-header { flex-direction: column; gap: 4px; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ PANTALLA DE ACCESO ══ -->
+  <div id="pantalla-acceso">
+    <div class="acceso-box">
+      <div class="acceso-icono">🔒</div>
+      <div class="acceso-titulo">Acceso restringido</div>
+      <div class="acceso-sub">Guion de venta interno.<br>Ingresa el PIN para continuar.</div>
+      <div class="pin-inputs">
+        <input type="password" inputmode="numeric" maxlength="1" id="p0" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="p1" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="p2" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="p3" autocomplete="off">
+      </div>
+      <button class="btn-acceso" onclick="verificarPin()">Ingresar</button>
+      <div class="acceso-error" id="accesoError">PIN incorrecto. Intenta de nuevo.</div>
+      <div class="acceso-intentos" id="accesoIntentos"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <h1>Guion de Venta — Piloto Yulia</h1>
+        <p>Feedback QR para restaurantes · Uso exclusivo tuyo</p>
+        <span class="badge-pill">~15 minutos · reunión con el amigo</span>
+      </div>
+      <a href="index.html" class="btn-back">📝 Anotar</a>
+    </div>
+  </div>
+
+  <div class="uso-rapido">
+    <strong>Cómo usar este guion:</strong> Léelo antes de la reunión, no en vivo.
+    Los bloques negros son frases que puedes decir casi textuales. Los verdes explican
+    el porqué. Los rojos son objeciones típicas con su respuesta. <strong>No vendas el software —
+    vende el resultado (el piloto).</strong> Después de la reunión, registra lo que pasó en
+    <a href="index.html" style="color:#2563EB;">la página de anotaciones</a>.
+  </div>
+
+  <!-- ══ CONTEXTO ══ -->
+  <div class="section-label">Contexto rápido · Qué es Yulia</div>
+  <div class="bloque">
+    <div class="bloque-title"><span class="icon">ℹ️</span> El producto que vas a operar</div>
+    <div class="script-box" style="background:#f5f5f5; color:#333;">
+      Yulia (yulia.com.co) es un SaaS colombiano de gestión de PQRS/feedback: el cliente escanea un
+      <em style="color:#2563EB;">QR</em> en la mesa, deja su queja o comentario, una IA lo clasifica por sentimiento
+      y el negocio lo ve en un dashboard con seguimiento y notificaciones. Hay módulo de recompensas
+      (cupones) para incentivar respuestas. El pitch central: interceptar la queja
+      <strong>antes</strong> de que se convierta en una reseña de 1 estrella en Google.
+    </div>
+    <table class="precio-tabla">
+      <tr><th>Plan</th><th>Precio</th><th>Incluye</th></tr>
+      <tr><td>FREE</td><td>Gratis</td><td>1 sede, 1 buzón, 50 observaciones</td></tr>
+      <tr><td>STARTER</td><td>$15.000/mes</td><td>5 sedes, 10 buzones, 500 observaciones</td></tr>
+      <tr><td>PRO</td><td>$59.000/mes</td><td>Ilimitado, 20 usuarios, 2.600 observaciones</td></tr>
+    </table>
+    <div class="tip-item alerta" style="margin-top:10px;">
+      <span class="tip-icon">🚩</span>
+      <div class="tip-text"><strong>Recuerda:</strong> sin tracción visible, footer con rastro de rebranding
+      (buzonai.com), sin NIT publicado, sin programa de partners confirmado. No repitas cifras del sitio
+      ("99% de precisión") — no están verificadas.</div>
+    </div>
+  </div>
+
+  <!-- ══ ANTES DE LA REUNIÓN ══ -->
+  <div class="section-label">Antes de reunirte — checklist</div>
+  <div class="bloque">
+    <div class="checklist">
+      <label class="checklist-item"><input type="checkbox"><span>Crear cuenta gratis en Yulia y montar un buzón de prueba en tu celular (demo lista, sin depender del wifi del local).</span></label>
+      <label class="checklist-item"><input type="checkbox"><span>Escribir a <strong>antonio@yulia.com.co</strong> preguntando por esquema de partners/reventa/descuento por volumen — esto define tu economía.</span></label>
+      <label class="checklist-item"><input type="checkbox"><span>Sacar capturas de las reseñas de 1-2 estrellas del restaurante en Google Maps del último mes.</span></label>
+      <label class="checklist-item"><input type="checkbox"><span>Calcular el "costo de la mala reseña": ticket promedio × clientes que aleja al mes.</span></label>
+    </div>
+  </div>
+
+  <!-- ══ APERTURA ══ -->
+  <div class="section-label">Apertura <span class="section-time">· ~2 min</span></div>
+  <div class="bloque">
+    <div class="bloque-title"><span class="icon">🤝</span> No empieces por el producto — empieza por el dolor</div>
+    <div class="script-box">
+      "Oye, te quiero mostrar algo rápido. ¿Cuántas reseñas de 1 y 2 estrellas te han puesto
+      en Google este último mes? Vamos a leerlas juntos un momento."
+    </div>
+    <div class="por-que"><strong>Por qué así:</strong> el dolor tiene que salir de su boca, no de tu pitch.
+      Casi siempre son cosas resolubles en la mesa (demora, plato frío, un mesero) — ese es el gancho.</div>
+    <div class="tips-title">El gancho, después de leer las reseñas</div>
+    <div class="tip-item argumento">
+      <span class="tip-icon">💡</span>
+      <div class="tip-text">"Esta reseña te costó clientes y era resoluble esa misma noche, antes de que la escribiera."</div>
+    </div>
+  </div>
+
+  <!-- ══ EL COSTO ══ -->
+  <div class="section-label">El número que vende <span class="section-time">· ~3 min</span></div>
+  <div class="pregunta-card">
+    <div class="pregunta-header">
+      <span class="pregunta-num">⭐</span>
+      <div class="pregunta-titulo">Calcula el costo de la mala reseña con él, no solo, antes de venir</div>
+      <span class="tiempo-badge">~3 min</span>
+    </div>
+    <div class="script-box">
+      "Si tu ticket promedio es de tanto, y una reseña mala aleja aunque sea 5 clientes al mes,
+      eso son [calcula el número] pesos al mes que te está costando. Ese es el número — no el dashboard."
+    </div>
+    <div class="por-que"><strong>Por qué:</strong> el dashboard y la IA no venden; el dinero que se está
+      perdiendo hoy sí. Lleva ya calculado un número de referencia antes de la reunión.</div>
+  </div>
+
+  <!-- ══ EL PILOTO ══ -->
+  <div class="section-label">Propón un piloto de 30 días, no un contrato <span class="section-time">· ~2 min</span></div>
+  <div class="bloque">
+    <div class="script-box">
+      "No te estoy pidiendo que firmes nada. Te propongo 30 días de piloto. Yo lo configuro,
+      te entreno al personal, y al día 30 te traigo un reporte con: cuántos comentarios entraron,
+      cuántos eran negativos, cuántos resolviste esa misma noche, y cómo cambiaron tus reseñas malas
+      vs. el mes anterior. Con eso decides si seguimos."
+    </div>
+    <div class="por-que"><strong>Por qué:</strong> reduce la fricción de decisión a casi cero — no hay
+      objeción de "déjame pensarlo" cuando no hay compromiso real todavía.</div>
+    <div class="tips-title">No lo regales del todo</div>
+    <div class="tip-item ojo">
+      <span class="tip-icon">👀</span>
+      <div class="tip-text">Aunque sea simbólico, cóbrale algo desde el día uno. Un cliente gratis no te dice si el modelo funciona.</div>
+    </div>
+  </div>
+
+  <!-- ══ OBJECIONES ══ -->
+  <div class="section-label">Objeciones y respuestas <span class="section-time">· ten esto listo</span></div>
+  <div class="pregunta-card">
+    <div class="tip-item objecion">
+      <span class="tip-icon">❌</span>
+      <div class="tip-text"><strong>"Nadie va a escanear un QR"</strong>
+        <div class="respuesta-modelo">"Por eso el módulo de recompensas: postre o 10% en la próxima visita. Y lo medimos en el piloto."</div>
+      </div>
+    </div>
+    <div class="tip-item objecion">
+      <span class="tip-icon">❌</span>
+      <div class="tip-text"><strong>"Yo ya sé cuáles son mis problemas"</strong>
+        <div class="respuesta-modelo">"Perfecto, esto te lo confirma con datos y te dice qué mesero o qué plato concentra las quejas."</div>
+      </div>
+    </div>
+    <div class="tip-item objecion">
+      <span class="tip-icon">❌</span>
+      <div class="tip-text"><strong>"¿Y si me llenan de quejas falsas?"</strong>
+        <div class="respuesta-modelo">"Hay filtro por IA y en un local pequeño el volumen es manejable a mano."</div>
+      </div>
+    </div>
+    <div class="tip-item objecion">
+      <span class="tip-icon">❌</span>
+      <div class="tip-text"><strong>"¿Cuánto me cuesta esto?"</strong>
+        <div class="respuesta-modelo">"La licencia son $15.000/mes. Lo que te cobro yo es por implementarlo, capacitar al personal y entregarte el informe con acciones concretas cada mes — entre $150.000 y $400.000 según el tamaño del local."</div>
+      </div>
+    </div>
+    <div class="tip-item alerta">
+      <span class="tip-icon">⚠️</span>
+      <div class="tip-text"><strong>Riesgo legal — no lo ofrezcas así:</strong> nunca lo presentes como "filtramos a los
+        descontentos para que solo los felices vayan a Google" — eso viola las políticas de reseñas de Google.
+        El buzón captura feedback interno, punto.</div>
+    </div>
+  </div>
+
+  <!-- ══ DUE DILIGENCE ══ -->
+  <div class="section-label">Debida diligencia de seguridad — pregúntalo o mándalo por escrito</div>
+  <div class="bloque">
+    <div class="script-box" style="background:#f5f5f5; color:#333;">
+      Vas a poner datos de clientes de tu amigo en esta plataforma. Esto no es hackear el sitio —
+      es hacer las preguntas correctas antes de confiarles datos. Ideal: mándalas por correo a
+      <strong>antonio@yulia.com.co</strong> junto con la pregunta de partners.
+    </div>
+    <div class="tips-title" style="margin-top:10px;">Datos y cumplimiento legal</div>
+    <div class="checklist">
+      <div class="checklist-item"><span>Razón social y NIT de la empresa que factura.</span></div>
+      <div class="checklist-item"><span>Dónde se alojan los datos (país / proveedor cloud).</span></div>
+      <div class="checklist-item"><span>¿El formulario público incluye autorización de tratamiento de datos (Ley 1581 de 2012)?</span></div>
+      <div class="checklist-item"><span>¿Quién es responsable y quién encargado del tratamiento? (normalmente el restaurante responsable, Yulia encargado — debe haber contrato/anexo).</span></div>
+      <div class="checklist-item"><span>¿Cómo se atiende una solicitud de eliminar datos de un comensal?</span></div>
+    </div>
+    <div class="tips-title" style="margin-top:10px;">Seguridad técnica</div>
+    <div class="checklist">
+      <div class="checklist-item"><span>Cifrado en tránsito (HTTPS/TLS 1.2+, confirmar).</span></div>
+      <div class="checklist-item"><span>Cifrado en reposo en la base de datos.</span></div>
+      <div class="checklist-item"><span>2FA para el panel de administración.</span></div>
+      <div class="checklist-item"><span>Backups y frecuencia.</span></div>
+      <div class="checklist-item"><span>Retención de logs (sus términos dicen hasta 5 años).</span></div>
+      <div class="checklist-item"><span>Tiempo de notificación ante brecha de seguridad (sus términos dicen 72 horas).</span></div>
+    </div>
+    <div class="tips-title" style="margin-top:10px;">Continuidad del negocio</div>
+    <div class="checklist">
+      <div class="checklist-item"><span>Si el proyecto cierra, ¿cómo se exportan/recuperan los datos?</span></div>
+      <div class="checklist-item"><span>SLA de disponibilidad (ojo: sus términos dicen que NO lo garantizan).</span></div>
+      <div class="checklist-item"><span>Canal y tiempo de respuesta de soporte.</span></div>
+    </div>
+    <div class="tip-item ojo" style="margin-top:8px;">
+      <span class="tip-icon">👀</span>
+      <div class="tip-text">Si responde claro y por escrito, buena señal. Si esquiva varias, es alerta para ti y para tu amigo.</div>
+    </div>
+  </div>
+
+  <!-- ══ CIERRE ══ -->
+  <div class="section-label">Cierre</div>
+  <div class="cierre-card">
+    <h3>🎯 Cierre profesional</h3>
+    <div class="script-box">
+      "Con esto ya tienes claro lo que te está costando una mala reseña. Empecemos el piloto de 30 días
+      — yo lo configuro esta semana y en un mes te traigo números reales. ¿Trato?"
+    </div>
+    <h3 style="margin-top:16px;">🚦 Señales de cliente caliente</h3>
+    <div class="senal-grid">
+      <div class="senal-item"><span class="senal-icon">🔴</span><div class="senal-text"><strong>Preguntó el precio de la mensualidad de gestión</strong> — interés real.</div></div>
+      <div class="senal-item"><span class="senal-icon">🔴</span><div class="senal-text"><strong>Contó una historia de una reseña o queja específica</strong> — ese es el caso de uso del piloto.</div></div>
+      <div class="senal-item"><span class="senal-icon">🟡</span><div class="senal-text"><strong>Aceptó el piloto pero no fijó fecha de arranque</strong> — necesita seguimiento en días, no semanas.</div></div>
+      <div class="senal-item"><span class="senal-icon">⚪</span><div class="senal-text"><strong>"Déjame pensarlo"</strong> — anota la objeción real y agenda seguimiento en 3-5 días.</div></div>
+    </div>
+  </div>
+
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir este guion</button>
+  <a href="index.html" class="btn-anotar">📝 Registrar cómo fue la reunión</a>
+
+</div>
+<script>
+  // ── PIN almacenado como hash SHA-256 ──
+  // PIN por defecto: 1234 (cámbialo: node -e "require('crypto').createHash('sha256').update('TUPIN').digest('hex')")
+  const PIN_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
+  const MAX_INTENTOS = 5;
+  const BLOQUEO_MS   = 5 * 60 * 1000;
+
+  (function init() {
+    const sesion = sessionStorage.getItem('yulia_auth');
+    if (sesion === 'ok') {
+      document.getElementById('pantalla-acceso').style.display = 'none';
+      return;
+    }
+    const bloqueado = localStorage.getItem('yulia_bloqueo');
+    if (bloqueado) {
+      const restante = parseInt(bloqueado) - Date.now();
+      if (restante > 0) { bloquearUI(restante); return; }
+      else { localStorage.removeItem('yulia_bloqueo'); localStorage.removeItem('yulia_intentos'); }
+    }
+    const campos = ['p0','p1','p2','p3'];
+    campos.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', () => {
+        el.value = el.value.replace(/\D/g, '');
+        if (el.value.length === 1 && i < 3) document.getElementById(campos[i + 1]).focus();
+        if (i === 3 && el.value.length === 1) verificarPin();
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && el.value === '' && i > 0) document.getElementById(campos[i - 1]).focus();
+        if (e.key === 'Enter') verificarPin();
+      });
+    });
+    document.getElementById('p0').focus();
+  })();
+
+  async function sha256(texto) {
+    const enc = new TextEncoder();
+    const buf = await crypto.subtle.digest('SHA-256', enc.encode(texto));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function verificarPin() {
+    const campos = ['p0','p1','p2','p3'];
+    const pin = campos.map(id => document.getElementById(id).value).join('');
+    if (pin.length < 4) return;
+    const hash = await sha256(pin);
+    if (hash === PIN_HASH) {
+      sessionStorage.setItem('yulia_auth', 'ok');
+      localStorage.removeItem('yulia_intentos');
+      localStorage.removeItem('yulia_bloqueo');
+      document.getElementById('pantalla-acceso').style.display = 'none';
+    } else {
+      let intentos = parseInt(localStorage.getItem('yulia_intentos') || '0') + 1;
+      localStorage.setItem('yulia_intentos', intentos);
+      campos.forEach(id => {
+        const el = document.getElementById(id);
+        el.value = '';
+        el.classList.add('error');
+        setTimeout(() => el.classList.remove('error'), 600);
+      });
+      if (intentos >= MAX_INTENTOS) {
+        const hasta = Date.now() + BLOQUEO_MS;
+        localStorage.setItem('yulia_bloqueo', hasta);
+        bloquearUI(BLOQUEO_MS);
+      } else {
+        const restantes = MAX_INTENTOS - intentos;
+        document.getElementById('accesoError').style.display = 'block';
+        document.getElementById('accesoIntentos').textContent =
+          restantes === 1 ? 'Último intento antes del bloqueo.' : `${restantes} intentos restantes.`;
+        setTimeout(() => document.getElementById('p0').focus(), 100);
+      }
+    }
+  }
+
+  function bloquearUI(msRestantes) {
+    const btn = document.querySelector('.btn-acceso');
+    const campos = ['p0','p1','p2','p3'];
+    campos.forEach(id => { document.getElementById(id).disabled = true; });
+    btn.disabled = true;
+    btn.style.background = '#aaa';
+    document.getElementById('accesoError').style.display = 'none';
+    const intervalo = setInterval(() => {
+      const bloqueado = localStorage.getItem('yulia_bloqueo');
+      if (!bloqueado) { clearInterval(intervalo); return; }
+      const restante = parseInt(bloqueado) - Date.now();
+      if (restante <= 0) {
+        clearInterval(intervalo);
+        localStorage.removeItem('yulia_bloqueo');
+        localStorage.removeItem('yulia_intentos');
+        campos.forEach(id => { document.getElementById(id).disabled = false; });
+        btn.disabled = false;
+        btn.style.background = '';
+        document.getElementById('accesoIntentos').textContent = '';
+        document.getElementById('p0').focus();
+      } else {
+        const min = Math.ceil(restante / 60000);
+        document.getElementById('accesoIntentos').textContent = `Bloqueado por ${min} min${min !== 1 ? 'utos' : 'uto'}.`;
+      }
+    }, 1000);
+  }
+</script>
+</body>
+</html>

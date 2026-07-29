@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anotaciones — Piloto Yulia</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- ══ PANTALLA DE ACCESO ══ -->
+  <div id="pantalla-acceso">
+    <div class="acceso-box">
+      <div class="acceso-icono">🔒</div>
+      <div class="acceso-titulo">Acceso restringido</div>
+      <div class="acceso-sub">Formulario de uso interno.<br>Ingresa el PIN para continuar.</div>
+      <div class="pin-inputs">
+        <input type="password" inputmode="numeric" maxlength="1" id="p0" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="p1" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="p2" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="p3" autocomplete="off">
+      </div>
+      <button class="btn-acceso" onclick="verificarPin()">Ingresar</button>
+      <div class="acceso-error" id="accesoError">PIN incorrecto. Intenta de nuevo.</div>
+      <div class="acceso-intentos" id="accesoIntentos"></div>
+    </div>
+  </div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h1>Anotaciones de la reunión</h1>
+        <p>Piloto Yulia · Registra qué pasó, aunque no se cierre</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+        <button class="btn-historial" onclick="toggleHistorial()" id="btnHistorial">
+          <span id="contadorBadge">0</span>
+          <span class="historial-label">reuniones</span>
+        </button>
+        <a href="guion.html" class="btn-guion">📋 Guion</a>
+      </div>
+    </div>
+    <span class="badge">Se guarda aunque el cliente diga que no</span>
+  </div>
+
+  <!-- PANEL HISTORIAL -->
+  <div class="historial-panel" id="historialPanel" style="display:none">
+    <div class="historial-header">
+      <span id="historialTitulo">Reuniones registradas</span>
+      <button class="historial-close" onclick="toggleHistorial()">✕</button>
+    </div>
+    <div id="historialLista"></div>
+  </div>
+
+  <!-- ALERTA OFFLINE -->
+  <div class="offline-badge" id="offlineBadge">Sin conexión — tus respuestas se guardan en el celular</div>
+
+  <!-- BOTÓN SINCRONIZAR -->
+  <button class="btn-sync" id="btnSync" onclick="sincronizarPendientes()" style="display:none">⬆ Enviar registros pendientes</button>
+
+  <!-- PROGRESO -->
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Tu avance</span><span id="progressText">0 de 6</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+  </div>
+
+  <!-- ══ A. DATOS DE LA REUNIÓN ══ -->
+  <div class="section-label">A · Datos de la reunión</div>
+  <div class="card" id="c1">
+    <div class="q-num">1 de 6</div>
+    <div class="q-text">¿Con quién fue la reunión?</div>
+    <div class="q-hint">Negocio y nombre del contacto</div>
+    <div class="field-group"><label>Nombre del negocio</label><input type="text" id="f_negocio" placeholder="Ej: Restaurante de mi amigo" oninput="updateProgress()"></div>
+    <div class="field-group"><label>Nombre del contacto</label><input type="text" id="f_contacto" placeholder="Ej: Camilo" oninput="updateProgress()"></div>
+    <div class="field-group"><label>Fecha de la reunión</label><input type="date" id="f_fecha" oninput="updateProgress()"></div>
+  </div>
+
+  <!-- ══ B. DIAGNÓSTICO PREVIO ══ -->
+  <div class="section-label">B · Diagnóstico previo</div>
+  <div class="card" id="c2">
+    <div class="q-num">2 de 6</div>
+    <div class="q-text">El número que llevaste a la reunión</div>
+    <div class="q-hint">Reseñas negativas revisadas y costo estimado calculado</div>
+    <div class="field-group"><label>Reseñas de 1-2 estrellas (último mes)</label><input type="text" id="f_resenas" placeholder="Ej: 4" oninput="updateProgress()"></div>
+    <div class="field-group"><label>Costo estimado de la mala reseña ($/mes)</label><input type="text" id="f_costo" placeholder="Ej: $600.000/mes" oninput="updateProgress()"></div>
+  </div>
+
+  <!-- ══ C. RESULTADO ══ -->
+  <div class="section-label">C · Resultado de la reunión</div>
+
+  <div class="card" id="c3">
+    <div class="q-num">3 de 6 ⭐</div>
+    <div class="q-text">¿Qué tan interesado quedó?</div>
+    <div class="q-hint">Total honestidad, esto es para tu propio feedback</div>
+    <label class="opt"><input type="radio" name="interes" value="Muy interesado, acepta el piloto" onchange="updateProgress()"><span>Muy interesado, acepta el piloto</span></label>
+    <label class="opt"><input type="radio" name="interes" value="Interesado pero con dudas" onchange="updateProgress()"><span>Interesado pero con dudas</span></label>
+    <label class="opt"><input type="radio" name="interes" value="Lo va a pensar" onchange="updateProgress()"><span>Lo va a pensar</span></label>
+    <label class="opt"><input type="radio" name="interes" value="No interesado" onchange="updateProgress()"><span>No interesado</span></label>
+  </div>
+
+  <div class="card" id="c4">
+    <div class="q-num">4 de 6</div>
+    <div class="q-text">Objeciones reales que puso</div>
+    <div class="q-hint">Marca todas las que aplicaron — sus palabras, no las que anticipaste</div>
+    <label class="opt"><input type="checkbox" name="objecion" value="Nadie va a escanear el QR" onchange="updateProgress()"><span>Nadie va a escanear el QR</span></label>
+    <label class="opt"><input type="checkbox" name="objecion" value="Ya sé cuáles son mis problemas" onchange="updateProgress()"><span>Ya sé cuáles son mis problemas</span></label>
+    <label class="opt"><input type="checkbox" name="objecion" value="Miedo a quejas falsas" onchange="updateProgress()"><span>Miedo a quejas falsas</span></label>
+    <label class="opt"><input type="checkbox" name="objecion" value="Precio de la mensualidad de gestión" onchange="updateProgress()"><span>Precio de la mensualidad de gestión</span></label>
+    <label class="opt"><input type="checkbox" name="objecion" value="Desconfianza en Yulia como proveedor" onchange="updateProgress()"><span>Desconfianza en Yulia como proveedor</span></label>
+    <label class="opt"><input type="checkbox" name="objecion" value="Otra" onchange="toggleOtro('otroObjecion', this);updateProgress()"><span>Otra</span></label>
+    <input class="otro-input" type="text" id="otroObjecion" placeholder="¿Cuál otra objeción?" oninput="updateProgress()">
+  </div>
+
+  <div class="card" id="c5">
+    <div class="q-num">5 de 6</div>
+    <div class="q-text">Piloto y precio</div>
+    <div class="q-hint">Deja el número acordado, aunque sea provisional</div>
+    <label class="opt"><input type="radio" name="piloto" value="Sí, acepta el piloto de 30 días" onchange="updateProgress()"><span>Sí, acepta el piloto de 30 días</span></label>
+    <label class="opt"><input type="radio" name="piloto" value="Lo va a pensar" onchange="updateProgress()"><span>Lo va a pensar</span></label>
+    <label class="opt"><input type="radio" name="piloto" value="No acepta" onchange="updateProgress()"><span>No acepta</span></label>
+    <div class="field-group" style="margin-top:10px;"><label>Precio de mensualidad de gestión acordado / propuesto</label><input type="text" id="f_precio" placeholder="Ej: $200.000/mes"></div>
+  </div>
+
+  <!-- ══ D. DUE DILIGENCE DEL PROVEEDOR ══ -->
+  <div class="section-label">D · Due diligence del proveedor (respuestas de Yulia)</div>
+  <div class="card" style="border-left-color:#f59e0b;">
+    <div class="q-hint" style="margin-bottom:10px;">Marca según lo que responda antonio@yulia.com.co — deja "Pendiente" si aún no contesta</div>
+    <div id="ddContainer"></div>
+    <div class="field-group" style="margin-top:10px;"><label>Notas sobre las respuestas del proveedor</label><textarea id="f_dd_notas" placeholder="Ej: respondió por correo el día X, confirmó NIT pero no contestó sobre partners..."></textarea></div>
+  </div>
+
+  <!-- ══ E. NOTAS Y PRÓXIMO PASO ══ -->
+  <div class="section-label">E · Notas y próximo paso</div>
+  <div class="card" id="c6">
+    <div class="q-num">6 de 6 ✏️</div>
+    <div class="q-text">¿Qué más dijo? Palabras textuales, matices, por qué sí o por qué no</div>
+    <div class="q-hint">Esto es lo que más vale si al final no compra — es tu feedback real</div>
+    <textarea id="f_notas" placeholder="Ej: le preocupa que el personal no revise el dashboard, pidió referencias de otro restaurante..." onkeyup="updateProgress()"></textarea>
+  </div>
+  <div class="card" style="border-left-color:#ccc;">
+    <div class="field-group"><label>Próximo paso</label><input type="text" id="f_siguiente" placeholder="Ej: llamarlo el viernes con la respuesta de partners"></div>
+    <div class="field-group"><label>Fecha de seguimiento</label><input type="date" id="f_fecha_seguimiento"></div>
+  </div>
+
+  <!-- BOTONES -->
+  <div style="display:flex; gap:10px; margin-top:20px;">
+    <button class="btn-save" id="btnGuardar" onclick="guardar()" style="margin-top:0; flex:1;">Guardar anotaciones</button>
+    <button class="btn-print-encuesta" onclick="window.print()">🖨️</button>
+  </div>
+
+  <!-- MENSAJES DE ESTADO -->
+  <div class="status-msg error" id="msgValidacion"></div>
+  <div class="status-msg ok" id="msgOk">✅ <strong>Anotaciones guardadas.</strong> Quedaron en tu Google Sheets para revisarlas cuando quieras.</div>
+  <div class="status-msg pending" id="msgPending">⏳ <strong>Sin conexión.</strong> Se guardaron en este teléfono y se enviarán solas cuando vuelva el internet.</div>
+  <div class="status-msg error" id="msgError">⚠️ <strong>Algo salió mal.</strong> Revisa la conexión e intenta de nuevo. Tus anotaciones no se perdieron.</div>
+
+  <!-- RESUMEN -->
+  <div class="summary" id="summary">
+    <h3>Resumen de la reunión</h3>
+    <div id="summary-content"></div>
+    <button class="btn-nueva" onclick="nuevaReunion()">+ Registrar otra reunión</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<script src="assets/app.js"></script>
+</body>
+</html>
